@@ -8,30 +8,32 @@ import { IPaginacao } from "../../interfaces/IPaginacao";
 const ListaRestaurantes = () => {
   const [restaurantes, setRestaurantes] = useState<IRestaurante[]>([]);
   const [proximaPagina, setProximaPagina] = useState("");
+  const [paginaAnterior, setPaginaAnterior] = useState("");
 
-  // TODO: fazer requisição que lista os pratos...
-
-  useEffect(() => {
+  function carregarDados(url: string) {
     axios
-      .get<IPaginacao<IRestaurante>>(
-        "http://localhost:8000/api/v1/restaurantes/"
-      )
+      .get<IPaginacao<IRestaurante>>(url)
       .then((resposta) => {
         setRestaurantes(resposta.data.results);
         setProximaPagina(resposta.data.next);
-      })
-      .catch((erro) => console.log(erro));
-  }, []);
-
-  function verMais() {
-    axios
-      .get<IPaginacao<IRestaurante>>(proximaPagina)
-      .then((resposta) => {
-        setRestaurantes([...restaurantes, ...resposta.data.results]);
-        setProximaPagina(resposta.data.next);
+        setPaginaAnterior(resposta.data.previous);
       })
       .catch((erro) => console.log(erro));
   }
+
+  useEffect(() => {
+    carregarDados("http://localhost:8000/api/v1/restaurantes/");
+  }, []);
+
+  // function verMais() {
+  //   axios
+  //     .get<IPaginacao<IRestaurante>>(proximaPagina)
+  //     .then((resposta) => {
+  //       setRestaurantes([...restaurantes, ...resposta.data.results]);
+  //       setProximaPagina(resposta.data.next);
+  //     })
+  //     .catch((erro) => console.log(erro));
+  // }
 
   return (
     <section className={style.ListaRestaurantes}>
@@ -41,7 +43,19 @@ const ListaRestaurantes = () => {
       {restaurantes?.map((item) => (
         <Restaurante restaurante={item} key={item.id} />
       ))}
-      {proximaPagina && <button onClick={verMais}>Ver Mais</button>}
+      <button
+        onClick={() => carregarDados(paginaAnterior)}
+        disabled={!paginaAnterior}
+      >
+        Página Anterior
+      </button>
+      <button
+        onClick={() => carregarDados(proximaPagina)}
+        disabled={!proximaPagina}
+      >
+        Próxima Página
+      </button>
+      {/* {proximaPagina && <button onClick={verMais}>Ver Mais</button>} */}
     </section>
   );
 };
