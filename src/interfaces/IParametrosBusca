@@ -1,0 +1,4 @@
+interface IParametrosBusca{
+    ordenacao?: string,
+    busca?: string
+}

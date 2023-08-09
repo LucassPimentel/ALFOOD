@@ -9,6 +9,7 @@ const ListaRestaurantes = () => {
   const [restaurantes, setRestaurantes] = useState<IRestaurante[]>([]);
   const [proximaPagina, setProximaPagina] = useState("");
   const [paginaAnterior, setPaginaAnterior] = useState("");
+  const [busca, setBusca] = useState("");
 
   function carregarDados(url: string) {
     axios
@@ -40,9 +41,22 @@ const ListaRestaurantes = () => {
       <h1>
         Os restaurantes mais <em>bacanas</em>!
       </h1>
-      {restaurantes?.map((item) => (
-        <Restaurante restaurante={item} key={item.id} />
-      ))}
+      <label htmlFor="id_busca">Buscar</label>
+      <input
+        id="id_busca"
+        type="text"
+        placeholder="Busque o restaurente por aqui..."
+        onChange={(e) => setBusca(e.target.value)}
+      />
+      {restaurantes
+        .filter((restaurante) => {
+          return busca.toLowerCase() === ""
+            ? restaurante
+            : restaurante.nome.toLowerCase().includes(busca.toLowerCase());
+        })
+        .map((item) => (
+          <Restaurante restaurante={item} key={item.id} />
+        ))}
       <button
         onClick={() => carregarDados(paginaAnterior)}
         disabled={!paginaAnterior}
